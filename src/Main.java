@@ -32,6 +32,13 @@ public class Main {
 	        System.out.println("Serial port FAILED!!! : " + ex.getMessage());
 	        return;
 	    }
+		
+		while (true) {
+			System.out.println("Sent to serial.");
+			serial.writeln("Text");
+			serial.flush();
+			Thread.sleep(2000);
+		}
 
 	}
 }
