@@ -14,7 +14,7 @@ public class Main {
 	public static void main(String[] args) {
 		GpioController gpio = GpioFactory.getInstance();
 
-		System.out.println("Pin going UP!");
+		System.out.println("Starting up!");
 		final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(
 				RaspiPin.GPIO_00, "LED", PinState.LOW);
 		final GpioPinDigitalInput pinInput = gpio.provisionDigitalInputPin(
@@ -24,11 +24,14 @@ public class Main {
 			public void handleGpioPinDigitalStateChangeEvent(
 					GpioPinDigitalStateChangeEvent event) {
 				if (event.getState().equals(PinState.HIGH)) {
+					System.out.println("Taster clicked!");
 					change = !change;
 				}
 			}
 
 		});
+		
+		System.out.println("Click on the taster to start/stop blinking!");
 
 		try {
 			while (true) {
@@ -41,6 +44,7 @@ public class Main {
 		} catch (InterruptedException e) {
 
 		} finally {
+			System.out.println("Finish!");
 			gpio.shutdown();
 		}
 	}
