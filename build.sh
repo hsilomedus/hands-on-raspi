@@ -8,7 +8,7 @@ mkdir mantarget
 echo Copy libs
 cp ./lib/*.jar ./mantarget
 echo Compile
-javac -d mantarget ./src/*.java
+javac -cp lib/pi4j-core.jar -d mantarget ./src/*.java
 echo Done!
 echo ----------------------------------------------------------------------
 
