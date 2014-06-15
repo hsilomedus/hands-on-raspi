@@ -26,7 +26,7 @@ public class Main {
 		try {
 	        // open the default serial port provided on the GPIO header
 			System.out.println("Starting up the serial port...");
-	        serial.open(Serial.DEFAULT_COM_PORT, 115200);
+	        serial.open(Serial.DEFAULT_COM_PORT, 9600);
 	                
 	    } catch (SerialPortException ex) {
 	        System.out.println("Serial port FAILED!!! : " + ex.getMessage());
