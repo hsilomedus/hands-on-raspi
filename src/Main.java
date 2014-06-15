@@ -1,22 +1,37 @@
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.GpioPinDigitalOutput;
-import com.pi4j.io.gpio.PinState;
-import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.io.serial.Serial;
+import com.pi4j.io.serial.SerialDataEvent;
+import com.pi4j.io.serial.SerialDataListener;
+import com.pi4j.io.serial.SerialFactory;
+import com.pi4j.io.serial.SerialPortException;
 
 public class Main {
 
 	public static void main(String[] args) throws InterruptedException {
 		GpioController gpio = GpioFactory.getInstance();
 
-		System.out.println("Pin going UP!");
-		final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(
-				RaspiPin.GPIO_00, "LED", PinState.HIGH);
+		final Serial serial = SerialFactory.createInstance();
+
+		serial.addListener(new SerialDataListener() {
+
+			@Override
+			public void dataReceived(SerialDataEvent event) {
+				System.out.println("Data received: " + event.getData().trim());
+
+			}
+		});
 		
-		 Thread.sleep(5000);
-		 System.out.println("Ping going down.");
-		 pin.low();
-		 gpio.shutdown();
 		
+		try {
+	        // open the default serial port provided on the GPIO header
+			System.out.println("Starting up the serial port...");
+	        serial.open(Serial.DEFAULT_COM_PORT, 115200);
+	                
+	    } catch (SerialPortException ex) {
+	        System.out.println("Serial port FAILED!!! : " + ex.getMessage());
+	        return;
+	    }
+
 	}
 }
