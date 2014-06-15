@@ -8,7 +8,7 @@ public class Main {
 
 	public static void main(String[] args) throws InterruptedException {
 		GpioController gpio = GpioFactory.getInstance();
-
+		System.out.println("Startup!");
 		System.out.println("Pin going UP!");
 		final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(
 				RaspiPin.GPIO_00, "LED", PinState.HIGH);
@@ -17,6 +17,7 @@ public class Main {
 		 System.out.println("Ping going down.");
 		 pin.low();
 		 gpio.shutdown();
+		 System.out.println("Finish.");
 		
 	}
 }
