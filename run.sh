@@ -1,4 +1,4 @@
 echo ----------------------------------------------------------------------
-java -cp mantarget:lib/pi4j-core.jar Main
+sudo java -cp mantarget:lib/pi4j-core.jar Main
 echo ----------------------------------------------------------------------
 
