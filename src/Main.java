@@ -13,9 +13,7 @@ public class Main {
 	    final byte[] ack = {(byte) 0x00, (byte) 0x00, (byte) 0xff, (byte) 0x00, (byte) 0xff, (byte) 0x00};
 	    final Serial serial = SerialFactory.createInstance();
 	    try {
-
-
-	        serial.open("/dev/ttyAMA0", 115200);
+	        
 	        serial.addListener(new SerialDataListener() {
 	            @Override
 	            public void dataReceived(SerialDataEvent event) {
@@ -36,6 +34,8 @@ public class Main {
 	                serial.write(ack);
 	            }
 	        });
+	        
+	        serial.open(Serial.DEFAULT_COM_PORT, 115200);
 	        System.out.println("Port Opened: " + serial.isOpen() + " ");
 	        serial.write(wakeUP);
 	        System.out.print("Write: ");
