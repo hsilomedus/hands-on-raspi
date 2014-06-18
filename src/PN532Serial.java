@@ -26,12 +26,12 @@ public class PN532Serial {
 	}
 	
 	private void writeAndLog(byte toSend) {
-		writeAndLog(toSend);
+		serial.write(toSend);
 		System.out.println("Sent " + Integer.toHexString(toSend));
 	}
 	
 	private void writeAndLog(byte[] toSend) {
-		writeAndLog(toSend);
+		serial.write(toSend);
 		System.out.println("Sent " + getByteString(toSend));
 		
 	}
