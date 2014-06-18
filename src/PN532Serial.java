@@ -161,7 +161,7 @@ public class PN532Serial {
 	}
 
 	int receive(byte[] buffer, int expectedLength, int timeout) throws InterruptedException {
-		Thread.sleep(100);
+//		Thread.sleep(100);
 		System.out.println("Medium.receive(..., " + expectedLength + ", " + timeout + ")");
 		int read_bytes = 0;
 		int ret;
@@ -172,10 +172,11 @@ public class PN532Serial {
 			do {
 				if (serial.availableBytes() == 0) {
 					ret = -1;
+					Thread.sleep(10);
 				} else {
 					ret = serial.read();
 				}
-				if (ret < 0) {
+				if (ret >= 0) {
 					break;
 				}
 			} while ((System.currentTimeMillis() - start_millis) < timeout);
