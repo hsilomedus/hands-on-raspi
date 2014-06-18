@@ -24,6 +24,25 @@ public class PN532Serial {
 	public PN532Serial() {
 		serial = SerialFactory.createInstance();
 	}
+	
+	private void writeAndLog(byte toSend) {
+		writeAndLog(toSend);
+		System.out.println("Sent " + Integer.toHexString(toSend));
+	}
+	
+	private void writeAndLog(byte[] toSend) {
+		writeAndLog(toSend);
+		System.out.println("Sent " + getByteString(toSend));
+		
+	}
+	
+	private String getByteString(byte[] arr) {
+		String output = "[";
+		for (int i = 0; i < arr.length; i++) {
+			output+=Integer.toHexString(arr[i]) + " ";
+		}
+		return output.trim() + "]";
+	}
 
 	public void begin() {
 		System.out.println("Medium.begin()");
@@ -33,11 +52,11 @@ public class PN532Serial {
 
 	public void wakeup() {
 		System.out.println("Medium.wakeup()");
-		serial.write((byte) 0x55);
-		serial.write((byte) 0x55);
-		serial.write((byte) 0x00);
-		serial.write((byte) 0x00);
-		serial.write((byte) 0x00);
+		writeAndLog((byte) 0x55);
+		writeAndLog((byte) 0x55);
+		writeAndLog((byte) 0x00);
+		writeAndLog((byte) 0x00);
+		writeAndLog((byte) 0x00);
 		serial.flush();
 		dumpSerialBuffer();
 	}
@@ -45,6 +64,7 @@ public class PN532Serial {
 	private void dumpSerialBuffer() {
 		System.out.println("Medium.dumpSerialBuffer()");
 		while (serial.availableBytes() > 0) {
+			System.out.println("Dumping byte");
 			serial.read();
 		}
 	}
@@ -55,29 +75,29 @@ public class PN532Serial {
 
 		command = header[0];
 
-		serial.write(PN532_PREAMBLE);
-		serial.write(PN532_STARTCODE1);
-		serial.write(PN532_STARTCODE2);
+		writeAndLog(PN532_PREAMBLE);
+		writeAndLog(PN532_STARTCODE1);
+		writeAndLog(PN532_STARTCODE2);
 
 		int length = header.length + (body != null ? body.length : 0) + 1;
-		serial.write((byte) length);
+		writeAndLog((byte) length);
 		// see if this is right
-		serial.write((byte) ((~length) + 1));
-		serial.write(PN532_HOSTTOPN532);
+		writeAndLog((byte) ((~length) + 1));
+		writeAndLog(PN532_HOSTTOPN532);
 
 		int sum = PN532_HOSTTOPN532;
 
-		serial.write(header);
+		writeAndLog(header);
 		sum += header.length;
 
 		if (body != null) {
-			serial.write(body);
+			writeAndLog(body);
 			sum += body.length;
 		}
 
 		int checksum = (~sum) + 1;
-		serial.write((byte) checksum);
-		serial.write(PN532_POSTAMBLE);
+		writeAndLog((byte) checksum);
+		writeAndLog(PN532_POSTAMBLE);
 		serial.flush();
 		return readAckFrame();
 	}
