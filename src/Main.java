@@ -3,7 +3,7 @@ public class Main {
 	static final byte PN532_MIFARE_ISO14443A = 0x00;
 
 	public static void main(String[] args) throws InterruptedException {
-		PN523Serial pn532Serial = new PN523Serial();
+		PN532Serial pn532Serial = new PN532Serial();
 		PN532 nfc = new PN532(pn532Serial);
 
 		// Start
