@@ -1,4 +1,6 @@
 import com.pi4j.io.serial.Serial;
+import com.pi4j.io.serial.SerialDataEvent;
+import com.pi4j.io.serial.SerialDataListener;
 import com.pi4j.io.serial.SerialFactory;
 
 public class PN532Serial {
@@ -23,6 +25,14 @@ public class PN532Serial {
 
 	public PN532Serial() {
 		serial = SerialFactory.createInstance();
+		serial.addListener(new SerialDataListener() {
+			
+			@Override
+			public void dataReceived(SerialDataEvent arg0) {
+				System.out.println("REceived: " + arg0.getData());
+				
+			}
+		});
 	}
 	
 	private void writeAndLog(byte toSend) {
