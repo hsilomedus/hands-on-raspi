@@ -1,62 +1,54 @@
-import java.io.UnsupportedEncodingException;
-
-import com.pi4j.io.serial.Serial;
-import com.pi4j.io.serial.SerialDataEvent;
-import com.pi4j.io.serial.SerialDataListener;
-import com.pi4j.io.serial.SerialFactory;
-
 public class Main {
 
+	static final byte PN532_MIFARE_ISO14443A = 0x00;
+
 	public static void main(String[] args) throws InterruptedException {
-		byte[] SAMConfiguration = {(byte) 0x00, (byte) 0x00, (byte) 0xff, (byte) 0x03, (byte) 0xfd, (byte) 0xd4, (byte) 0x14, (byte) 0x01, (byte) 0x17, (byte) 0x00};
-	    byte[] wakeUP = {(byte) 0x55, (byte) 0x55, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
-	    final byte[] ack = {(byte) 0x00, (byte) 0x00, (byte) 0xff, (byte) 0x00, (byte) 0xff, (byte) 0x00};
-	    final Serial serial = SerialFactory.createInstance();
-	    try {
-	        
-	        serial.addListener(new SerialDataListener() {
-	            @Override
-	            public void dataReceived(SerialDataEvent event) {
-	                String data = event.getData();
-//	                StringBuilder buffer = new StringBuilder();
-	                byte[] array =  new byte[1];
-					try {
-						array = data.getBytes("UTF-16");
-					} catch (UnsupportedEncodingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+		PN523Serial pn532Serial = new PN523Serial();
+		PN532 nfc = new PN532(pn532Serial);
 
-	                System.out.println("Read: ");
-	                for (int i = 0; i < array.length; i++) {
-	                    System.out.printf("%02X ", array[i]);
-	                }
-	                serial.write(ack);
-	            }
-	        });
-	        
-	        serial.open(Serial.DEFAULT_COM_PORT, 115200);
-	        System.out.println("Port Opened: " + serial.isOpen() + " ");
-	        serial.write(wakeUP);
-	        System.out.print("Write: ");
-	        for (int i = 0; i < SAMConfiguration.length; i++) {
-	            System.out.printf("%02X ", SAMConfiguration[i]);
-	        }
-	        System.out.println();
-	        serial.write(SAMConfiguration);
+		// Start
+		nfc.begin();
 
-	        for (;;) {
-	            try {
-	                Thread.sleep(1000);
-	            } catch (InterruptedException ex) {
-	                System.out.println(ex.getMessage());
-	            }
-	        }
-	    } catch (Exception e) {
-	        System.out.println(e.getMessage());
-	    } finally {
-	        serial.close();
-	    }
-		
+		long versiondata = nfc.getFirmwareVersion();
+		if (versiondata == 0) {
+			System.out.println("Didn't find PN53x board");
+			return;
+		}
+		// Got ok data, print it out!
+		System.out.print("Found chip PN5");
+		System.out.println(Long.toHexString((versiondata >> 24) & 0xFF));
+
+		System.out.print("Firmware ver. ");
+		System.out.print(Long.toHexString((versiondata >> 16) & 0xFF));
+		System.out.print('.');
+		System.out.println(Long.toHexString((versiondata >> 8) & 0xFF));
+
+		// configure board to read RFID tags
+		nfc.SAMConfig();
+
+		System.out.println("Waiting for an ISO14443A Card ...");
+
+		byte[] buffer = new byte[8];
+		while (true) {
+			int readLength = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A,
+					buffer);
+
+			if (readLength > 0) {
+				System.out.println("Found an ISO14443A card");
+
+				System.out.print("  UID Length: ");
+				System.out.print(readLength);
+				System.out.println(" bytes");
+
+				System.out.print("  UID Value: [");
+				for (int i = 0; i < readLength; i++) {
+					System.out.print(Integer.toHexString(buffer[i]));
+				}
+				System.out.println("]");
+			}
+
+			Thread.sleep(100);
+		}
+
 	}
 }
