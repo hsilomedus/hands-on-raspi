@@ -55,7 +55,7 @@ public class PN532Serial {
 		serial.write(PN532_STARTCODE1);
 		serial.write(PN532_STARTCODE2);
 
-		int length = header.length + body.length + 1;
+		int length = header.length + (body != null ? body.length : 0) + 1;
 		serial.write((byte) length);
 		// see if this is right
 		serial.write((byte) ((~length) + 1));
@@ -145,10 +145,12 @@ public class PN532Serial {
 		if (receive(ackBuf, PN532_ACK.length) <= 0) {
 			return PN532_TIMEOUT;
 		}
-
-		// if( memcmp(ackBuf, PN532_ACK, sizeof(PN532_ACK)) ){
-		// return PN532_INVALID_ACK;
-		// }
+		
+		for (int i = 0; i < ackBuf.length; i++) {
+			if (ackBuf[i] != PN532_ACK[i]) {
+				return PN532_INVALID_ACK;
+			}
+		}
 
 		return 0;
 	}
