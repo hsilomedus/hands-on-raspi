@@ -38,7 +38,7 @@ public class PN532Serial {
 		serial.write((byte) 0x00);
 		serial.write((byte) 0x00);
 		serial.write((byte) 0x00);
-
+		serial.flush();
 		dumpSerialBuffer();
 	}
 
@@ -78,6 +78,7 @@ public class PN532Serial {
 		int checksum = (sum) + 1;
 		serial.write((byte) checksum);
 		serial.write(PN532_POSTAMBLE);
+		serial.flush();
 		return readAckFrame();
 	}
 
@@ -195,7 +196,7 @@ public class PN532Serial {
 	}
 
 	int receive(byte[] buffer, int expectedLength) throws InterruptedException {
-		return receive(buffer, expectedLength, 1000);
+		return receive(buffer, expectedLength, 2000);
 	}
 
 }
