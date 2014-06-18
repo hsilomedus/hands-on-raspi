@@ -75,7 +75,7 @@ public class PN532Serial {
 			sum += body.length;
 		}
 
-		int checksum = (sum) + 1;
+		int checksum = (~sum) + 1;
 		serial.write((byte) checksum);
 		serial.write(PN532_POSTAMBLE);
 		serial.flush();
