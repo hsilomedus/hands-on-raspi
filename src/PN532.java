@@ -17,7 +17,7 @@ public class PN532 {
 		medium.wakeup();
 	}
 
-	public long getFirmwareVersion() {
+	public long getFirmwareVersion() throws InterruptedException {
 		long response;
 
 		byte[] command = new byte[1];
@@ -45,7 +45,7 @@ public class PN532 {
 		return response;
 	}
 
-	public boolean SAMConfig() {
+	public boolean SAMConfig() throws InterruptedException {
 		byte[] command = new byte[4];
 		command[0] = PN532_COMMAND_SAMCONFIGURATION;
 		command[1] = 0x01; // normal mode;
@@ -60,7 +60,7 @@ public class PN532 {
 				pn532_packetbuffer.length);
 	}
 
-	public int readPassiveTargetID(byte cardbaudrate, byte[] buffer) {
+	public int readPassiveTargetID(byte cardbaudrate, byte[] buffer) throws InterruptedException {
 		byte[] command = new byte[3];
 		command[0] = PN532_COMMAND_INLISTPASSIVETARGET;
 		command[1] = 1; // max 1 cards at once (we can set this to 2 later)

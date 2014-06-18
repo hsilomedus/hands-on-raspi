@@ -7,6 +7,7 @@ public class Main {
 		PN532 nfc = new PN532(pn532Serial);
 
 		// Start
+		System.out.println("Starting up...");
 		nfc.begin();
 
 		long versiondata = nfc.getFirmwareVersion();

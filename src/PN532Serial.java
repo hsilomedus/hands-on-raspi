@@ -26,11 +26,13 @@ public class PN532Serial {
 	}
 
 	public void begin() {
+		System.out.println("Medium.begin()");
 		serial.open(Serial.DEFAULT_COM_PORT, 115200);
 
 	}
 
 	public void wakeup() {
+		System.out.println("Medium.wakeup()");
 		serial.write((byte) 0x55);
 		serial.write((byte) 0x55);
 		serial.write((byte) 0x00);
@@ -41,12 +43,14 @@ public class PN532Serial {
 	}
 
 	private void dumpSerialBuffer() {
+		System.out.println("Medium.dumpSerialBuffer()");
 		while (serial.availableBytes() > 0) {
 			serial.read();
 		}
 	}
 
-	public int writeCommand(byte[] header, byte[] body) {
+	public int writeCommand(byte[] header, byte[] body) throws InterruptedException {
+		System.out.println("Medium.writeCommand(" + header + " " + (body != null ? body : "") + ")");
 		dumpSerialBuffer();
 
 		command = header[0];
@@ -77,12 +81,12 @@ public class PN532Serial {
 		return readAckFrame();
 	}
 
-	public int writeCommand(byte header[]) {
+	public int writeCommand(byte header[]) throws InterruptedException {
 		return writeCommand(header, null);
 	}
 
-	public int readResponse(byte[] buffer, int expectedLength, int timeout) {
-
+	public int readResponse(byte[] buffer, int expectedLength, int timeout) throws InterruptedException {
+		System.out.println("Medium.readResponse(..., " + expectedLength + ", " + timeout + ")");
 		byte[] tmp = new byte[3];
 		if (receive(tmp, 3, timeout) <= 0) {
 			return PN532_TIMEOUT;
@@ -133,11 +137,12 @@ public class PN532Serial {
 
 	}
 
-	public int readResponse(byte[] buffer, int expectedLength) {
+	public int readResponse(byte[] buffer, int expectedLength) throws InterruptedException {
 		return readResponse(buffer, expectedLength, 1000);
 	}
 
-	int readAckFrame() {
+	int readAckFrame() throws InterruptedException {
+		System.out.println("Medium.readAckFrame()");
 		// see what's all the fuzz about these
 		byte PN532_ACK[] = new byte[] { 0, 0, (byte) 0xFF, 0, (byte) 0xFF, 0 };
 		byte ackBuf[] = new byte[PN532_ACK.length];
@@ -155,7 +160,9 @@ public class PN532Serial {
 		return 0;
 	}
 
-	int receive(byte[] buffer, int expectedLength, int timeout) {
+	int receive(byte[] buffer, int expectedLength, int timeout) throws InterruptedException {
+		Thread.sleep(100);
+		System.out.println("Medium.receive(..., " + expectedLength + ", " + timeout + ")");
 		int read_bytes = 0;
 		int ret;
 		long start_millis;
@@ -163,8 +170,12 @@ public class PN532Serial {
 		while (read_bytes < expectedLength) {
 			start_millis = System.currentTimeMillis();
 			do {
-				ret = serial.read();
-				if (ret >= 0) {
+				if (serial.availableBytes() == 0) {
+					ret = -1;
+				} else {
+					ret = serial.read();
+				}
+				if (ret < 0) {
 					break;
 				}
 			} while ((System.currentTimeMillis() - start_millis) < timeout);
@@ -182,7 +193,7 @@ public class PN532Serial {
 		return read_bytes;
 	}
 
-	int receive(byte[] buffer, int expectedLength) {
+	int receive(byte[] buffer, int expectedLength) throws InterruptedException {
 		return receive(buffer, expectedLength, 1000);
 	}
 
