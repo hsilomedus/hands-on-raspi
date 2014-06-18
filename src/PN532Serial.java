@@ -88,11 +88,15 @@ public class PN532Serial {
 		int sum = PN532_HOSTTOPN532;
 
 		writeAndLog(header);
-		sum += header.length;
+		for (int i = 0; i < header.length; i++) {
+			sum += header[i];
+		}
 
 		if (body != null) {
 			writeAndLog(body);
-			sum += body.length;
+			for (int i = 0; i < body.length; i++) {
+				sum += body[i];
+			}
 		}
 
 		int checksum = (~sum) + 1;
