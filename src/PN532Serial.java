@@ -184,12 +184,15 @@ public class PN532Serial {
 
 			if (ret < 0) {
 				if (read_bytes > 0) {
+					System.out.println("Read total of " + read_bytes + " bytes.");
 					return read_bytes;
 				} else {
+					System.out.println("Timeout while reading.");
 					return PN532_TIMEOUT;
 				}
 			}
 			buffer[read_bytes] = (byte) ret;
+			System.out.println("Read: " + Integer.toHexString(ret));
 			read_bytes++;
 		}
 		return read_bytes;
