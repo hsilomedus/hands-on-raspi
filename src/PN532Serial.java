@@ -1,6 +1,7 @@
 import com.pi4j.io.serial.Serial;
 import com.pi4j.io.serial.SerialFactory;
 
+@Deprecated
 public class PN532Serial implements IPN532Interface {
 
 	final static byte PN532_PREAMBLE = (byte) 0x00;
