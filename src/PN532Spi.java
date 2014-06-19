@@ -216,7 +216,7 @@ public class PN532Spi implements IPN532Interface {
 	
 	private byte readSpiStatus() throws InterruptedException 
 	{
-		System.out.println("Medium.readSpiStatus()");
+//		System.out.println("Medium.readSpiStatus()");
 		byte status;
 
 		Gpio.digitalWrite(_cs, LOW);
