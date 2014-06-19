@@ -251,10 +251,10 @@ public class PN532Spi implements IPN532Interface {
 	}
 	
 	byte readF() {
-		byte[] data = new byte[1];
+		byte[] data = new byte[10];
 		data[0] = 0;
-		Spi.wiringPiSPIDataRW(SPICHANNEL, data, 1);
-		System.out.println("Medium.readF() = " + Integer.toHexString(data[0]));
+		Spi.wiringPiSPIDataRW(SPICHANNEL, data, 10);
+		System.out.println("Medium.readF() = " + getByteString(data));
 		return data[0];
 	}
 	
