@@ -13,88 +13,80 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-	
+
+	private static Label lab;
+
 	@Override
-    public void start(Stage primaryStage) {
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setOnAction(new EventHandler<ActionEvent>() {
+	public void start(Stage primaryStage) {
+		Button btn = new Button();
+		btn.setText("Toggle LED");
+		btn.setOnAction(new EventHandler<ActionEvent>() {
 
-            @Override
-            public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
-            }
-        });
+			@Override
+			public void handle(ActionEvent event) {
+				pin.toggle();
+			}
+		});
 
-        Button btnExit = new Button();
-        btnExit.setText("Exit");
-        btnExit.setOnAction(new EventHandler<ActionEvent>() {
+		lab = new Label();
+		lab.setText("Clicks: ");
 
-            @Override
-            public void handle(ActionEvent event) {
-                Platform.exit();
-            }
-        });
+		Button btnExit = new Button();
+		btnExit.setText("Exit");
+		btnExit.setOnAction(new EventHandler<ActionEvent>() {
 
-        VBox vBox = new VBox();
-        vBox.getChildren().addAll(btn, btnExit);
+			@Override
+			public void handle(ActionEvent event) {
+				Platform.exit();
+			}
+		});
 
-        StackPane root = new StackPane();
-        root.getChildren().add(vBox);
+		VBox vBox = new VBox();
+		vBox.getChildren().addAll(btn, lab, btnExit);
 
-        Scene scene = new Scene(root, 300, 250);
+		StackPane root = new StackPane();
+		root.getChildren().add(vBox);
 
-        primaryStage.setTitle("Hello World!");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
+		Scene scene = new Scene(root, 300, 250);
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-	
-	
-//	static boolean change = false;
-//	public static void main(String[] args) {
-//		GpioController gpio = GpioFactory.getInstance();
-//
-//		System.out.println("Starting up!");
-//		final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(
-//				RaspiPin.GPIO_00, "LED", PinState.LOW);
-//		final GpioPinDigitalInput pinInput = gpio.provisionDigitalInputPin(
-//				RaspiPin.GPIO_01, PinPullResistance.PULL_DOWN);
-//		pinInput.addListener(new GpioPinListenerDigital() {
-//			@Override
-//			public void handleGpioPinDigitalStateChangeEvent(
-//					GpioPinDigitalStateChangeEvent event) {
-//				if (event.getState().equals(PinState.HIGH)) {
-//					System.out.println("Taster clicked!");
-//					change = !change;
-//				}
-//			}
-//
-//		});
-//
-//		System.out.println("Click on the taster to start/stop blinking!");
-//
-//		try {
-//			while (true) {
-//				Thread.sleep(200);
-//
-//				if (change) {
-//					pin.toggle();
-//				}
-//			}
-//		} catch (InterruptedException e) {
-//
-//		} finally {
-//			System.out.println("Finish!");
-//			gpio.shutdown();
-//		}
-//	}
+		primaryStage.setTitle("Hello World!");
+		primaryStage.setScene(scene);
+		primaryStage.show();
+	}
+
+	public static GpioPinDigitalOutput pin;
+	public static GpioPinDigitalInput pinInput;
+
+	public static void main(String[] args) {
+		GpioController gpio = GpioFactory.getInstance();
+
+		System.out.println("Starting up!");
+		pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_00, "LED",
+				PinState.LOW);
+		pinInput = gpio.provisionDigitalInputPin(RaspiPin.GPIO_01,
+				PinPullResistance.PULL_DOWN);
+		pinInput.addListener(new GpioPinListenerDigital() {
+			@Override
+			public void handleGpioPinDigitalStateChangeEvent(
+					GpioPinDigitalStateChangeEvent event) {
+				if (event.getState().equals(PinState.HIGH)) {
+					System.out.println("Taster clicked!");
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							lab.setText(lab.getText() + "*");
+						}
+					});
+				}
+			}
+
+		});
+		launch(args);
+	}
 }
