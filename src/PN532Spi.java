@@ -246,15 +246,16 @@ public class PN532Spi implements IPN532Interface {
 	{
 		System.out.println("Medium.write(" + Integer.toHexString(_data) + ")");
 		byte[] dataToSend = new byte[1];
-		dataToSend[0] = _data;
+		dataToSend[0] = reverseByte(_data);
 		Spi.wiringPiSPIDataRW(SPICHANNEL, dataToSend, 1);
 	}
 	
 	byte readF() {
-		byte[] data = new byte[10];
+		byte[] data = new byte[1];
 		data[0] = 0;
-		Spi.wiringPiSPIDataRW(SPICHANNEL, data, 10);
-		System.out.println("Medium.readF() = " + getByteString(data));
+		Spi.wiringPiSPIDataRW(SPICHANNEL, data, 1);
+		data[0] = reverseByte(data[0]);
+		System.out.println("Medium.readF() = " + Integer.toHexString(data[0]));
 		return data[0];
 	}
 	
@@ -264,6 +265,22 @@ public class PN532Spi implements IPN532Interface {
 			output+=Integer.toHexString(arr[i]) + " ";
 		}
 		return output.trim() + "]";
+	}
+	
+	byte reverseByte(byte input) {
+		byte output = 0;
+		for(int p=0;p<8;p++)
+		{
+			if((input & 0x01) > 0)
+			{
+				output |= 1<<(7-p);
+			}
+			else
+			{
+			}
+			input = (byte)(input>>1);
+		}
+		return output;
 	}
 
 }
