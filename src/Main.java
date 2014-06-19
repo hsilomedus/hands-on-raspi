@@ -12,11 +12,11 @@ public class Main {
 		System.out.println("Pin going UP!");
 		final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(
 				RaspiPin.GPIO_00, "LED", PinState.HIGH);
-		
-		 Thread.sleep(5000);
-		 System.out.println("Ping going down.");
-		 pin.low();
-		 gpio.shutdown();
-		
+
+		Thread.sleep(5000);
+		System.out.println("Ping going down.");
+		pin.low();
+		gpio.shutdown();
+
 	}
 }
