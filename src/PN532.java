@@ -28,19 +28,23 @@ public class PN532 {
 		}
 
 		// read data packet
+//		int status = medium.readResponse(pn532_packetbuffer,
+//				pn532_packetbuffer.length);
 		int status = medium.readResponse(pn532_packetbuffer,
-				pn532_packetbuffer.length);
+				12);
 		if (0 > status) {
 			return 0;
 		}
+		
+		int offset = 6;
 
-		response = pn532_packetbuffer[0];
+		response = pn532_packetbuffer[offset + 0];
 		response <<= 8;
-		response |= pn532_packetbuffer[1];
+		response |= pn532_packetbuffer[offset + 1];
 		response <<= 8;
-		response |= pn532_packetbuffer[2];
+		response |= pn532_packetbuffer[offset + 2];
 		response <<= 8;
-		response |= pn532_packetbuffer[3];
+		response |= pn532_packetbuffer[offset + 3];
 
 		return response;
 	}
@@ -56,8 +60,10 @@ public class PN532 {
 			return false;
 		}
 
+//		return 0 < medium.readResponse(pn532_packetbuffer,
+//				pn532_packetbuffer.length);
 		return 0 < medium.readResponse(pn532_packetbuffer,
-				pn532_packetbuffer.length);
+				8);
 	}
 
 	public int readPassiveTargetID(byte cardbaudrate, byte[] buffer) throws InterruptedException {
@@ -71,7 +77,8 @@ public class PN532 {
 		}
 
 		// read data packet
-		if (medium.readResponse(pn532_packetbuffer, pn532_packetbuffer.length) < 0) {
+//		if (medium.readResponse(pn532_packetbuffer, pn532_packetbuffer.length) < 0) {
+		if (medium.readResponse(pn532_packetbuffer, 20) < 0) {
 			return -1;
 		}
 
