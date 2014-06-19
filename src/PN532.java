@@ -4,10 +4,10 @@ public class PN532 {
 	static final byte PN532_COMMAND_SAMCONFIGURATION = 0x14;
 	static final byte PN532_COMMAND_INLISTPASSIVETARGET = 0x4A;
 
-	private PN532Serial medium;
+	private IPN532Interface medium;
 	private byte[] pn532_packetbuffer;
 
-	public PN532(PN532Serial medium) {
+	public PN532(IPN532Interface medium) {
 		this.medium = medium;
 		this.pn532_packetbuffer = new byte[64];
 	}
@@ -23,7 +23,7 @@ public class PN532 {
 		byte[] command = new byte[1];
 		command[0] = PN532_COMMAND_GETFIRMWAREVERSION;
 
-		if (medium.writeCommand(command) < 0) {
+		if (medium.writeCommand(command) != CommandStatus.OK) {
 			return 0;
 		}
 
@@ -52,7 +52,7 @@ public class PN532 {
 		command[2] = 0x14; // timeout 50ms * 20 = 1 second
 		command[3] = 0x01; // use IRQ pin!
 
-		if (medium.writeCommand(command) != 0) {
+		if (medium.writeCommand(command) != CommandStatus.OK) {
 			return false;
 		}
 
@@ -66,7 +66,7 @@ public class PN532 {
 		command[1] = 1; // max 1 cards at once (we can set this to 2 later)
 		command[2] = (byte) cardbaudrate;
 
-		if (medium.writeCommand(command) != 0) {
+		if (medium.writeCommand(command) != CommandStatus.OK) {
 			return -1; // command failed
 		}
 
@@ -84,8 +84,10 @@ public class PN532 {
 		 * Number (only one used in this example) b2..3 SENS_RES b4 SEL_RES b5
 		 * NFCID Length b6..NFCIDLen NFCID
 		 */
+		
+		int offset = 7;
 
-		if (pn532_packetbuffer[0] != 1) {
+		if (pn532_packetbuffer[offset + 0] != 1) {
 			return -1;
 		}
 		// int sens_res = pn532_packetbuffer[2];
@@ -97,10 +99,10 @@ public class PN532 {
 		// DMSG("\n");
 
 		/* Card appears to be Mifare Classic */
-		int uidLength = pn532_packetbuffer[5];
+		int uidLength = pn532_packetbuffer[offset + 5];
 
 		for (int i = 0; i < uidLength; i++) {
-			buffer[i] = pn532_packetbuffer[6 + i];
+			buffer[i] = pn532_packetbuffer[offset + 6 + i];
 		}
 
 		return uidLength;

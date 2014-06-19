@@ -1,7 +1,7 @@
 import com.pi4j.io.serial.Serial;
 import com.pi4j.io.serial.SerialFactory;
 
-public class PN532Serial {
+public class PN532Serial implements IPN532Interface {
 
 	final static byte PN532_PREAMBLE = (byte) 0x00;
 	final static byte PN532_STARTCODE1 = (byte) 0x00;
@@ -44,12 +44,20 @@ public class PN532Serial {
 		return output.trim() + "]";
 	}
 
+	/* (non-Javadoc)
+	 * @see IPN532Interface#begin()
+	 */
+	@Override
 	public void begin() {
 		System.out.println("Medium.begin()");
 		serial.open(Serial.DEFAULT_COM_PORT, 115200);
 
 	}
 
+	/* (non-Javadoc)
+	 * @see IPN532Interface#wakeup()
+	 */
+	@Override
 	public void wakeup() {
 		System.out.println("Medium.wakeup()");
 		writeAndLog((byte) 0x55);
@@ -69,7 +77,11 @@ public class PN532Serial {
 		}
 	}
 
-	public int writeCommand(byte[] header, byte[] body) throws InterruptedException {
+	/* (non-Javadoc)
+	 * @see IPN532Interface#writeCommand(byte[], byte[])
+	 */
+	@Override
+	public CommandStatus writeCommand(byte[] header, byte[] body) throws InterruptedException {
 		System.out.println("Medium.writeCommand(" + header + " " + (body != null ? body : "") + ")");
 		dumpSerialBuffer();
 
@@ -106,10 +118,18 @@ public class PN532Serial {
 		return readAckFrame();
 	}
 
-	public int writeCommand(byte header[]) throws InterruptedException {
+	/* (non-Javadoc)
+	 * @see IPN532Interface#writeCommand(byte[])
+	 */
+	@Override
+	public CommandStatus writeCommand(byte header[]) throws InterruptedException {
 		return writeCommand(header, null);
 	}
 
+	/* (non-Javadoc)
+	 * @see IPN532Interface#readResponse(byte[], int, int)
+	 */
+	@Override
 	public int readResponse(byte[] buffer, int expectedLength, int timeout) throws InterruptedException {
 		System.out.println("Medium.readResponse(..., " + expectedLength + ", " + timeout + ")");
 		byte[] tmp = new byte[3];
@@ -162,27 +182,31 @@ public class PN532Serial {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see IPN532Interface#readResponse(byte[], int)
+	 */
+	@Override
 	public int readResponse(byte[] buffer, int expectedLength) throws InterruptedException {
 		return readResponse(buffer, expectedLength, 1000);
 	}
 
-	int readAckFrame() throws InterruptedException {
+	CommandStatus readAckFrame() throws InterruptedException {
 		System.out.println("Medium.readAckFrame()");
 		// see what's all the fuzz about these
 		byte PN532_ACK[] = new byte[] { 0, 0, (byte) 0xFF, 0, (byte) 0xFF, 0 };
 		byte ackBuf[] = new byte[PN532_ACK.length];
 
 		if (receive(ackBuf, PN532_ACK.length) <= 0) {
-			return PN532_TIMEOUT;
+			return CommandStatus.TIMEOUT;
 		}
 		
 		for (int i = 0; i < ackBuf.length; i++) {
 			if (ackBuf[i] != PN532_ACK[i]) {
-				return PN532_INVALID_ACK;
+				return CommandStatus.INVALID_ACK;
 			}
 		}
 
-		return 0;
+		return CommandStatus.OK;
 	}
 
 	int receive(byte[] buffer, int expectedLength, int timeout) throws InterruptedException {

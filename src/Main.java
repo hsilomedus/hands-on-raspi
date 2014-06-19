@@ -3,12 +3,13 @@ public class Main {
 	static final byte PN532_MIFARE_ISO14443A = 0x00;
 
 	public static void main(String[] args) throws InterruptedException {
-		PN532Serial pn532Serial = new PN532Serial();
-		PN532 nfc = new PN532(pn532Serial);
+		IPN532Interface pn532Interface = new PN532Spi();
+		PN532 nfc = new PN532(pn532Interface);
 
 		// Start
 		System.out.println("Starting up...");
 		nfc.begin();
+		Thread.sleep(1000);
 
 		long versiondata = nfc.getFirmwareVersion();
 		if (versiondata == 0) {
