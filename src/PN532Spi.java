@@ -34,6 +34,7 @@ public class PN532Spi implements IPN532Interface {
 	@Override
 	public void begin() {
 		System.out.println("Beginning SPI.");
+		
 		int j = Gpio.wiringPiSetup();
 		System.out.println("Wiringpisetup is " + j);
 		int fd = Spi.wiringPiSPISetup(SPICHANNEL, SPISPEED);
@@ -74,7 +75,7 @@ public class PN532Spi implements IPN532Interface {
 //	#endif
 
 		Gpio.digitalWrite(_cs, LOW);
-		Thread.sleep(2);     				// or whatever the delay is for waking up the board
+		Gpio.delay(2);     				// or whatever the delay is for waking up the board
 
 		write(PN532_SPI_DATAWRITE); 	//0x01
 //			printf("%d\n",PN532_SPI_DATAWRITE);
@@ -142,7 +143,7 @@ public class PN532Spi implements IPN532Interface {
 		byte i;
 
 		Gpio.digitalWrite(_cs, LOW);
-		Thread.sleep(2);
+		Gpio.delay(2);
 		write(PN532_SPI_DATAREAD);
 
 //	#ifdef PN532DEBUG
@@ -151,7 +152,7 @@ public class PN532Spi implements IPN532Interface {
 
 		for (i=0; i < expectedLength; i ++) 
 		{
-			Thread.sleep(1);
+			Gpio.delay(1);
 			buffer[i] = readF();
 //	#ifdef PN532DEBUG
 //			printf("debug readf is %d\n",buff[i]);
@@ -185,7 +186,7 @@ public class PN532Spi implements IPN532Interface {
 					return CommandStatus.TIMEOUT;
 				}
 			}
-			Thread.sleep(10);
+			Gpio.delay(10);
 		}
 //		printf("read spi finsh\n");
 		// read acknowledgement
@@ -207,7 +208,7 @@ public class PN532Spi implements IPN532Interface {
 //				printf("read spi timeout\n");
 					return CommandStatus.TIMEOUT;
 			}
-			Thread.sleep(10);
+			Gpio.delay(10);
 		}
 //		printf("the spi return ture\n");
 		return CommandStatus.OK; // ack'd command
@@ -219,7 +220,7 @@ public class PN532Spi implements IPN532Interface {
 		byte status;
 
 		Gpio.digitalWrite(_cs, LOW);
-		Thread.sleep(2);
+		Gpio.delay(2);
 		write(PN532_SPI_STATREAD);
 		status = readF();
 		Gpio.digitalWrite(_cs, HIGH);
