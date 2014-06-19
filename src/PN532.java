@@ -15,14 +15,14 @@ public class PN532 {
 	public void begin() {
 		medium.begin();
 		medium.wakeup();
-		byte[] command = new byte[1];
-		command[0] = PN532_COMMAND_GETFIRMWAREVERSION;
-		try {
-			medium.writeCommand(command);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		byte[] command = new byte[1];
+//		command[0] = PN532_COMMAND_GETFIRMWAREVERSION;
+//		try {
+//			medium.writeCommand(command);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	public long getFirmwareVersion() throws InterruptedException {

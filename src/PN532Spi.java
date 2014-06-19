@@ -1,8 +1,4 @@
-import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.GpioPinDigitalOutput;
-import com.pi4j.io.gpio.PinState;
-import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.wiringpi.Gpio;
 import com.pi4j.wiringpi.Spi;
 
 
@@ -22,31 +18,41 @@ public class PN532Spi implements IPN532Interface {
 	static final byte PN532_POSTAMBLE =	0x00;
 	static final byte PN532_HOSTTOPN532 = (byte)0xD4;
 	
-	private GpioController controller;
-	private GpioPinDigitalOutput _cs;
-	private GpioPinDigitalOutput rst;
+	
+	
+	static final int	OUTPUT		=	 1;
+	
+	static final int	LOW		=	 0;
+	static final int	HIGH	=		 1;
+	
+//	private GpioController controller;
+//	private GpioPinDigitalOutput _cs;
+//	private GpioPinDigitalOutput rst;
+	static final int _cs = 10;
+	static final int rst = 0;
 	
 	@Override
 	public void begin() {
 		System.out.println("Beginning SPI.");
+		int j = Gpio.wiringPiSetup();
+		System.out.println("Wiringpisetup is " + j);
 		int fd = Spi.wiringPiSPISetup(SPICHANNEL, SPISPEED);
+		System.out.println("Wiringpispisetup is " + fd);
+		
 		if (fd <= -1) {
             System.out.println(" ==>> SPI SETUP FAILED");
             throw new RuntimeException("ERROR!");
         }
-		controller = GpioFactory.getInstance();
-		
-		_cs = controller.provisionDigitalOutputPin(RaspiPin.GPIO_10);
-		rst = controller.provisionDigitalOutputPin(RaspiPin.GPIO_00);
+		Gpio.pinMode(_cs, OUTPUT);
 		
 	}
 
 	@Override
 	public void wakeup() {
 		System.out.println("Waking SPI.");
-		digitalWrite(_cs,PinState.HIGH);
-		digitalWrite(rst,PinState.HIGH);
-		digitalWrite(_cs, PinState.LOW);
+		Gpio.digitalWrite(_cs,HIGH);
+		Gpio.digitalWrite(rst,HIGH);
+		Gpio.digitalWrite(_cs, LOW);
 	}
 
 	@Override
@@ -67,7 +73,7 @@ public class PN532Spi implements IPN532Interface {
 //		printf("Sending: \n");
 //	#endif
 
-		digitalWrite(_cs, PinState.LOW);
+		Gpio.digitalWrite(_cs, LOW);
 		Thread.sleep(2);     				// or whatever the delay is for waking up the board
 
 		write(PN532_SPI_DATAWRITE); 	//0x01
@@ -113,7 +119,7 @@ public class PN532Spi implements IPN532Interface {
 		checksum_1=(byte)~checksum;
 		write(checksum_1);
 		write(PN532_POSTAMBLE);
-		digitalWrite(_cs, PinState.HIGH);
+		Gpio.digitalWrite(_cs, HIGH);
 
 //	#ifdef PN532DEBUG
 //		printf("checksum is %d\n",(checksum_1));
@@ -135,7 +141,7 @@ public class PN532Spi implements IPN532Interface {
 		System.out.println("Medium.readResponse(..., " + expectedLength + ", " + timeout + ")");
 		byte i;
 
-		digitalWrite(_cs, PinState.LOW);
+		Gpio.digitalWrite(_cs, LOW);
 		Thread.sleep(2);
 		write(PN532_SPI_DATAREAD);
 
@@ -152,7 +158,7 @@ public class PN532Spi implements IPN532Interface {
 //	#endif
 		}
 //		printf("\n");
-		digitalWrite(_cs, PinState.HIGH);
+		Gpio.digitalWrite(_cs, HIGH);
 		
 		//TODO: see why this matters
 		return 1;
@@ -212,11 +218,11 @@ public class PN532Spi implements IPN532Interface {
 		System.out.println("Medium.readSpiStatus()");
 		byte status;
 
-		digitalWrite(_cs, PinState.LOW);
+		Gpio.digitalWrite(_cs, LOW);
 		Thread.sleep(2);
 		write(PN532_SPI_STATREAD);
 		status = readF();
-		digitalWrite(_cs, PinState.HIGH);
+		Gpio.digitalWrite(_cs, HIGH);
 		return status;
 	}
 	
@@ -249,10 +255,6 @@ public class PN532Spi implements IPN532Interface {
 		Spi.wiringPiSPIDataRW(SPICHANNEL, data, 1);
 		System.out.println("Medium.readF() = " + Integer.toHexString(data[0]));
 		return data[0];
-	}
-	
-	void digitalWrite(GpioPinDigitalOutput pin, PinState state) {
-		pin.setState(state);
 	}
 	
 	private String getByteString(byte[] arr) {
