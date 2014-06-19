@@ -1,5 +1,8 @@
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.PinState;
+import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.serial.Serial;
 import com.pi4j.io.serial.SerialDataEvent;
 import com.pi4j.io.serial.SerialDataListener;
@@ -7,17 +10,37 @@ import com.pi4j.io.serial.SerialFactory;
 import com.pi4j.io.serial.SerialPortException;
 
 public class Main {
+	
+	public static int lastValue = 512;
+	public static boolean outState = false;
 
 	public static void main(String[] args) throws InterruptedException {
 		GpioController gpio = GpioFactory.getInstance();
 
-		final Serial serial = SerialFactory.createInstance();
+		Serial serial = SerialFactory.createInstance();
+		
+		final GpioPinDigitalOutput pinOutput = 
+			gpio.provisionDigitalOutputPin(RaspiPin.GPIO_00, PinState.LOW);
 
 		serial.addListener(new SerialDataListener() {
 
 			@Override
 			public void dataReceived(SerialDataEvent event) {
-				System.out.println("Data received: " + event.getData().trim());
+				String readString = event.getData().trim();
+				System.out.println("Data received: " + readString);
+				try {
+					int value = Integer.parseInt(readString);
+					lastValue = value;
+				} catch (Exception ignore) {
+					
+				}
+				
+				//alter the state
+				boolean newState = lastValue < 200;
+				if (newState != outState) {
+					outState = newState;
+					pinOutput.setState(outState);
+				}
 
 			}
 		});
