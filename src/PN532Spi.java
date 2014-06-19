@@ -29,7 +29,11 @@ public class PN532Spi implements IPN532Interface {
 	@Override
 	public void begin() {
 		System.out.println("Beginning SPI.");
-		Spi.wiringPiSPISetup(SPICHANNEL, SPISPEED);
+		int fd = Spi.wiringPiSPISetup(SPICHANNEL, SPISPEED);
+		if (fd <= -1) {
+            System.out.println(" ==>> SPI SETUP FAILED");
+            throw new RuntimeException("ERROR!");
+        }
 		controller = GpioFactory.getInstance();
 		
 		_cs = controller.provisionDigitalOutputPin(RaspiPin.GPIO_10);
