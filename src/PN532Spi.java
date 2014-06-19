@@ -49,7 +49,7 @@ public class PN532Spi implements IPN532Interface {
 	public CommandStatus writeCommand(byte[] header, byte[] body)
 			throws InterruptedException {
 		
-		System.out.println("Medium.writeCommand(" + header + " " + (body != null ? body : "") + ")");
+		System.out.println("Medium.writeCommand(" + getByteString(header) + " " + (body != null ? body : "") + ")");
 		byte checksum;
 		byte cmdlen_1;
 		byte i;
@@ -162,6 +162,7 @@ public class PN532Spi implements IPN532Interface {
 			
 	private CommandStatus waitForAck(int timeout) throws InterruptedException {
 		System.out.println("Medium.waitForAck()");
+		
 		int timer = 0;
 		while (readSpiStatus() != PN532_SPI_READY)
 		{
@@ -236,19 +237,26 @@ public class PN532Spi implements IPN532Interface {
 		byte[] dataToSend = new byte[1];
 		dataToSend[0] = _data;
 		Spi.wiringPiSPIDataRW(SPICHANNEL, dataToSend, 1);
-
 	}
 	
 	byte readF() {
-		System.out.println("Medium.readF()");
 		byte[] data = new byte[1];
 		data[0] = 0;
 		Spi.wiringPiSPIDataRW(SPICHANNEL, data, 1);
+		System.out.println("Medium.readF() = " + Integer.toHexString(data[0]));
 		return data[0];
 	}
 	
 	void digitalWrite(GpioPinDigitalOutput pin, PinState state) {
 		pin.setState(state);
+	}
+	
+	private String getByteString(byte[] arr) {
+		String output = "[";
+		for (int i = 0; i < arr.length; i++) {
+			output+=Integer.toHexString(arr[i]) + " ";
+		}
+		return output.trim() + "]";
 	}
 
 }
