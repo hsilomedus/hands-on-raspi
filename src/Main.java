@@ -30,7 +30,7 @@ public class Main {
 			}
 
 		});
-		
+
 		System.out.println("Click on the taster to start/stop blinking!");
 
 		try {
